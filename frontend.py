@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from abbreviations import schwartz_hearst
 
 
@@ -8,29 +9,31 @@ class frontend:
     where the csv file will be read and write into the required latex abbreviation table.
     """
 
-    def __init__(self, f_source_file_dir_name_list: list[str], f_target_csv_dir: str = ""):
-        self.csv_name = "abbr.csv"
-        self.abbr_dict = {}  # empty abbr dictionary
+    def __init__(self, f_source_file_dir_name_list: list, f_target_csv_dir: str = ""):
+        self._csv_name = "abbr.csv"
+        self._abbr_dict = {}  # empty abbr dictionary
         self._file_list = f_source_file_dir_name_list
         if f_target_csv_dir:
-            self.target_csv_dir = f_target_csv_dir
+            self._target_csv_dir = f_target_csv_dir
         else:
-            self.target_csv_dir = ""
+            self._target_csv_dir = "."
+        self._csv_dir_filename = self._target_csv_dir + "/" + self._csv_name
         self._retrieval_files()
         self._abbr_dict_to_csv()
+        print("[INFO] Abbreviations in", self._file_list, "are writen into", self._csv_dir_filename)
 
     def _retrieval_files(self):
         for file in self._file_list:
             self._retrieval_single_file(file)
-        self.abbr_dict = dict(sorted(self.abbr_dict.items()))
+        self._abbr_dict = dict(sorted(self._abbr_dict.items()))
 
     def _retrieval_single_file(self, f_file_dir_name: str):
-        self.abbr_dict.update(schwartz_hearst.extract_abbreviation_definition_pairs(file_path=f_file_dir_name,
-                                                                                    most_common_definition=False,
-                                                                                    first_definition=False))
+        self._abbr_dict.update(schwartz_hearst.extract_abbreviation_definition_pairs(file_path=f_file_dir_name,
+                                                                                     most_common_definition=False,
+                                                                                     first_definition=False))
 
     def _abbr_dict_to_csv(self):
-        csv_file = open(self.target_csv_dir + self.csv_name, "w")
-        for abbr, words in self.abbr_dict.items():
+        csv_file = open(self._csv_dir_filename, "w")
+        for abbr, words in self._abbr_dict.items():
             csv_file.write("%s,%s\n" % (abbr, words))
         csv_file.close()
